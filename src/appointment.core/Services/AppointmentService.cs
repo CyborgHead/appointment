@@ -43,6 +43,13 @@ namespace appointment.core.Services
 
         public async Task<Response<AppointmentDto>> UpdateAppointment(AppointmentDto appointmentDto)
         {
+            var appointmentItem = await _appointmentRepository.GetAppointmentById(appointmentDto.Id);
+
+            if (appointmentItem == null)
+            {
+                throw new Exception($"No appointment found with Id : {appointmentDto.Id}");
+            }
+
             var appointmentModel = _mapper.Map<AppointmentTable>(appointmentDto);
             appointmentModel.LastModified = DateTime.Now;
             await _appointmentRepository.SaveAppointment(appointmentModel);
@@ -57,6 +64,13 @@ namespace appointment.core.Services
 
         public async Task<Response<string>> DeleteAppointment(Guid id)
         {
+            var appointmentItem = await _appointmentRepository.GetAppointmentById(id);
+
+            if (appointmentItem == null)
+            {
+                throw new Exception($"No appointment found with Id : {id}");
+            }
+
             await _appointmentRepository.DeleteAppointment(new AppointmentTable() { Id = id });
 
             return new Response<string>()
@@ -81,6 +95,12 @@ namespace appointment.core.Services
         public async Task<Response<AppointmentDto>> GetAppointmentById(Guid id)
         {
             var appointmentItem = await _appointmentRepository.GetAppointmentById(id);
+
+            if (appointmentItem == null)
+            {
+                throw new Exception($"No appointment found with Id : {id}");
+            }
+
             return new Response<AppointmentDto>()
             {
                 StatusCode = "200",

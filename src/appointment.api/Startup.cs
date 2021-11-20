@@ -52,7 +52,7 @@ namespace appointment.api
             services.AddAutoMapper(typeof(AppointmentProfile));
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerGeneratorOptions.Servers = new List<OpenApiServer> { new OpenApiServer { Url = "/appointment" } };
+                c.SwaggerGeneratorOptions.Servers = new List<OpenApiServer> { new OpenApiServer { Url = "/" } };
                 c.SwaggerDoc("v1", new OpenApiInfo
                 {
                     Version = "v1",
