@@ -17,6 +17,34 @@ https://cvrqmbit5d.execute-api.eu-west-1.amazonaws.com/swagger/index.html
 
 
 
+###### Deployment:
+
+Running the **cloudformation** stack will deploy API Gateway, Lambda, and DynamoDB
+
+* Install **SAM CLI**
+
+* Open **powershell**
+
+* cd to project *root directory*
+
+* Run the following command
+> sam build -t ./aws/cf.yml --base-dir src/appointment.api
+
+* Run *guided deployment*
+> sam deploy --guided
+
+
+
+###### Rollback:
+
+* Open *AWS Console* 
+
+* Navigate to *cloudformation*
+
+* Delete the created stack
+
+
+
 ###### Configurations: 
 
 Custom policy to read/write specific dynamo db table must be attached to created Lambda role.
