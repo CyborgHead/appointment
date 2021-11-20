@@ -32,6 +32,10 @@ namespace appointment.core.Services
             appointmentModel.Date = DateTime.Now;
             appointmentModel.LastModified = DateTime.Now;
 
+            // Validate same period.
+            // Validate overlapping period.
+            // Validate intersecting period.
+
             await _appointmentRepository.SaveAppointment(appointmentModel);
             return new Response<AppointmentDto>()
             {
@@ -39,6 +43,20 @@ namespace appointment.core.Services
                 StatusMessage = $"Appointment created successfully with id {appointmentDto.Id}",
                 Data = appointmentDto
             };
+        }
+
+        public async Task<List<Response<AppointmentDto>>> CreateAppointmentsWithList(List<AppointmentDto> appointmentDtoList)
+        {
+            List<Response<AppointmentDto>> responseList = new List<Response<AppointmentDto>>();
+
+            foreach (var item in appointmentDtoList)
+            {
+                var response = await CreateAppointment(item);
+
+                responseList.Add(response);
+            }
+
+            return responseList;
         }
 
         public async Task<Response<AppointmentDto>> UpdateAppointment(AppointmentDto appointmentDto)

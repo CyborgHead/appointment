@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using appointment.core.Contracts;
 using appointment.core.DTOs;
 using appointment.core.Interfaces;
+using System.Collections.Generic;
 
 #endregion namespaces
 
@@ -41,6 +42,37 @@ namespace appointment.api.Controllers
             try
             {
                 var response = await _appointmentService.CreateAppointment(requestDto);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new Response<string>()
+                {
+                    StatusCode = "400",
+                    StatusMessage = ex.Message
+                });
+            }
+        }
+
+        /// <summary>
+        /// Creates list of appointments with given input array.
+        /// </summary>
+        /// <param name="requestDtoList">List of AppointmentDto</param>
+        /// <returns>AppointmentDtoList</returns>
+        [HttpPost, Route("appointment/import")]
+        public async Task<ActionResult<Response<string>>> CreateWithList([FromBody] List<AppointmentDto> requestDtoList)
+        {
+            if (requestDtoList == null || requestDtoList.Count == 0)
+            {
+                return BadRequest(new Response<string>()
+                {
+                    StatusCode = "400",
+                    StatusMessage = "Request can NOT be null or empty."
+                });
+            }
+            try
+            {
+                var response = await _appointmentService.CreateAppointmentsWithList(requestDtoList);
                 return Ok(response);
             }
             catch (Exception ex)
