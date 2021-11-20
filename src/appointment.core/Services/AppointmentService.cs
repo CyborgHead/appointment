@@ -87,7 +87,7 @@ namespace appointment.core.Services
             return new Response<List<AppointmentDto>>()
             {
                 StatusCode = "200",
-                StatusMessage = $"Found {appointmentItems.Count} appointment",
+                StatusMessage = $"Found {appointmentItems.Count} appointment(s)",
                 Data = appointmentItems.Select(n => _mapper.Map<AppointmentDto>(n)).ToList()
             };
         }
