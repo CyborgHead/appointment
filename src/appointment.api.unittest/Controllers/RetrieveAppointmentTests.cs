@@ -10,68 +10,71 @@ using appointment.api.Controllers;
 using appointment.core.Contracts;
 using appointment.core.Models;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
 
 #endregion namespaces
 
 namespace appointment.api.unittest.Controllers
 {
-    public class CreateAppointmentTests
+    public class RetrieveAppointmentTests
     {
         private readonly Mock<IAppointmentService> _appointmentServiceMock;
         private readonly Guid _Id = Guid.NewGuid();
 
-        public CreateAppointmentTests()
+        public RetrieveAppointmentTests()
         {
             _appointmentServiceMock = new Mock<IAppointmentService>(); ;
         }
 
         [Fact]
-        public async void WhenCreateAppointment_Then200()
+        public async void WhenGetAllAppointments_Then200()
         {
             // Arrange
-            _appointmentServiceMock.Setup(p => p.CreateAppointment(It.IsAny<AppointmentDto>())).ReturnsAsync(
-                new Response<AppointmentDto>()
+            _appointmentServiceMock.Setup(p => p.GetAllAppointments()).ReturnsAsync(
+                new Response<List<AppointmentDto>>()
                 {
                     StatusCode = "200",
-                    Data = new AppointmentDto()
+                    Data = new List<AppointmentDto>()
                     {
-                        Id = _Id
+                        new AppointmentDto { Id = _Id }
                     }
                 });
             AppointmentController appointmentController = new AppointmentController(_appointmentServiceMock.Object);
 
             // Act
-            var response = await appointmentController.Create(new AppointmentDto() { Id = Guid.NewGuid() });
+            var response = await appointmentController.Get();
 
             //Assert
             Assert.NotNull(response);
             var returnValue = Assert.IsType<OkObjectResult>(response.Result);
-            var AppointmentResponse = Assert.IsType<Response<AppointmentDto>>(returnValue.Value);
+            var appointmentResponse = Assert.IsType<Response<List<AppointmentDto>>>(returnValue.Value);
             Assert.Equal((int)HttpStatusCode.OK, returnValue.StatusCode);
-            Assert.Equal(_Id, AppointmentResponse.Data.Id);
+            Assert.Equal(_Id, appointmentResponse.Data[0].Id);
         }
 
         [Fact]
-        public async void WhenCreateAppointment_EmptyAppointmentId_Then400()
+        public async void WhenGetAppointmentById_Then200()
         {
-            // Arrange
-            _appointmentServiceMock.Setup(p => p.CreateAppointment(It.IsAny<AppointmentDto>()))
-                .ReturnsAsync(
+            //Arrange
+            _appointmentServiceMock.Setup(p => p.GetAppointmentById(_Id)).ReturnsAsync(
                 new Response<AppointmentDto>()
                 {
-                    StatusCode = "400"
+                    StatusCode = "200",
+                    Data = new AppointmentDto() { Id = _Id }
                 });
+           
+
             AppointmentController appointmentController = new AppointmentController(_appointmentServiceMock.Object);
 
-            // Act
-            var response = await appointmentController.Create(null);
+            //Act
+            var response = await appointmentController.GetById(_Id);
 
             //Assert
             Assert.NotNull(response);
-            var returnValue = Assert.IsType<BadRequestObjectResult>(response.Result);
-            var AppointmentResponse = Assert.IsType<Response<string>>(returnValue.Value);
-            Assert.Equal((int)HttpStatusCode.BadRequest, returnValue.StatusCode);
-            Assert.Contains("can NOT be null or empty.", AppointmentResponse.StatusMessage);
+            var returnValue = Assert.IsType<OkObjectResult>(response.Result);
+            var appointmentResponse = Assert.IsType<Response<AppointmentDto>>(returnValue.Value);
+            Assert.Equal(appointmentResponse.Data.Id, _Id);
+
         }
     }
 }
