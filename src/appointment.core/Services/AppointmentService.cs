@@ -28,9 +28,6 @@ namespace appointment.core.Services
         public bool ValidateSamePeriodAppointmets(AppointmentDto appointmentDto, 
                     DateTime requiredDate, DateTime requiredStartTime, DateTime requiredEndTime)
         {
-            
-            // Validate overlapping period.
-            
             DateTime scheduledDate = appointmentDto.Date;
             DateTime startTime = appointmentDto.StartTime;
             DateTime endTime = appointmentDto.EndTime;
@@ -38,19 +35,22 @@ namespace appointment.core.Services
             if (scheduledDate == requiredDate)
             {
                 // Validate same period.
-                if (startTime == requiredStartTime)
+                if (scheduledDate.ToString("dd/MM/yyyy") == requiredDate.ToString("dd/MM/yyyy") 
+                       && startTime == requiredStartTime)
                 {
                     throw new Exception($"Appointment has same period with Id : {appointmentDto.Id}");
                 }
 
                 // Validate intersecting period.
-                if (startTime <= requiredStartTime && requiredStartTime <= endTime)
+                if (scheduledDate.ToString("dd/MM/yyyy") == requiredDate.ToString("dd/MM/yyyy")
+                       && startTime <= requiredStartTime && requiredStartTime <= endTime)
                 {
                     throw new Exception($"Appointment has intersecting period with Id : {appointmentDto.Id}");
                 }
 
                 // Validate overlapping period.
-                if (startTime <= requiredEndTime && requiredEndTime <= endTime)
+                if (scheduledDate.ToString("dd/MM/yyyy") == requiredDate.ToString("dd/MM/yyyy")
+                       && startTime <= requiredEndTime && requiredEndTime <= endTime)
                 {
                     throw new Exception($"Appointment has overlapping period with Id : {appointmentDto.Id}");
                 }
@@ -116,6 +116,25 @@ namespace appointment.core.Services
             if (appointmentItem == null)
             {
                 throw new Exception($"No appointment found with Id : {appointmentDto.Id}");
+            }
+
+            //Retrieve all appointments for agent
+            var appointmentsList = await _appointmentRepository.GetAppointmentsByEmail(appointmentDto.Email);
+            if (appointmentsList.ToList().Count > 0)
+            {
+                // Validate against required date, start/end times.
+                foreach (var item in appointmentsList)
+                {
+                    try
+                    {
+                        ValidateSamePeriodAppointmets(_mapper.Map<AppointmentDto>(item),
+                        appointmentDto.Date, appointmentDto.StartTime, appointmentDto.EndTime);
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new Exception(ex.Message);
+                    }
+                }
             }
 
             var appointmentModel = _mapper.Map<AppointmentTable>(appointmentDto);
