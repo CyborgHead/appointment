@@ -14,8 +14,8 @@ namespace appointment.core.Models
         public string PhoneNumber { get; set; }
         public DateTime StartTime { get; set; }
         public DateTime EndTime { get; set; }
-        [DynamoDBGlobalSecondaryIndexRangeKey("email-index")] //Range key
-        public DateTime Date { get; set; } // Create Date
-        public DateTime LastModified { get; set; }
+        [DynamoDBGlobalSecondaryIndexRangeKey("email-index")] // Range key
+        public DateTime Date { get; set; } // Scheduled date
+        public DateTime LastModified { get; set; } // Last modified date
     }
 }

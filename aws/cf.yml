@@ -43,7 +43,7 @@ Resources:
           AttributeName: "Email"
           AttributeType: "S"
         -
-          AttributeName: "CreateDate"
+          AttributeName: "Date"
           AttributeType: "S"
       KeySchema: 
         - 
@@ -58,7 +58,7 @@ Resources:
               AttributeName: "Email"
               KeyType: "HASH"
             -
-              AttributeName: "CreateDate"
+              AttributeName: "Date"
               KeyType: "RANGE"
           Projection: 
             ProjectionType: "ALL"
