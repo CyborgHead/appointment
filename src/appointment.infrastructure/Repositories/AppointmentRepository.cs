@@ -34,5 +34,11 @@ namespace appointment.infrastructure.Repositories
         public async Task<AppointmentTable> GetAppointmentById(Guid id) =>
             await _context.LoadAsync<AppointmentTable>(id);
 
+        public async Task<IEnumerable<AppointmentTable>> GetAppointmentsByEmail(string email)
+        {
+            return await _context.QueryAsync<AppointmentTable>(email,
+                new DynamoDBOperationConfig { IndexName = "email-index" }).GetRemainingAsync();
+        }
+
     }
 }

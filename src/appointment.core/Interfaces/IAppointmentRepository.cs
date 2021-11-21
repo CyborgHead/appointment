@@ -11,5 +11,6 @@ namespace appointment.core.Interfaces
         public Task DeleteAppointment(AppointmentTable model);
         public Task<List<AppointmentTable>> GetAllAppointments();
         public Task<AppointmentTable> GetAppointmentById(Guid id);
+        public Task<IEnumerable<AppointmentTable>> GetAppointmentsByEmail(string email);
     }
 }

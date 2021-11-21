@@ -13,7 +13,7 @@ Also includes cloud formation, SAM, Swagger, xUnit, Moq, and Automapper.
 
 ###### Swagger UI: 
 
-https://cvrqmbit5d.execute-api.eu-west-1.amazonaws.com/swagger/index.html 
+Try the API through [Swagger UI](https://cvrqmbit5d.execute-api.eu-west-1.amazonaws.com/swagger/index.html).
 
 
 
