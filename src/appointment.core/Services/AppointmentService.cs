@@ -32,28 +32,25 @@ namespace appointment.core.Services
             DateTime startTime = appointmentDto.StartTime;
             DateTime endTime = appointmentDto.EndTime;
 
-            if (scheduledDate == requiredDate)
+            // Validate same period.
+            if (scheduledDate.ToString("dd/MM/yyyy") == requiredDate.ToString("dd/MM/yyyy") 
+                    && startTime == requiredStartTime)
             {
-                // Validate same period.
-                if (scheduledDate.ToString("dd/MM/yyyy") == requiredDate.ToString("dd/MM/yyyy") 
-                       && startTime == requiredStartTime)
-                {
-                    throw new Exception($"Appointment has same period with Id : {appointmentDto.Id}");
-                }
+                throw new Exception($"Appointment has same period with Id : {appointmentDto.Id}");
+            }
 
-                // Validate intersecting period.
-                if (scheduledDate.ToString("dd/MM/yyyy") == requiredDate.ToString("dd/MM/yyyy")
-                       && startTime <= requiredStartTime && requiredStartTime <= endTime)
-                {
-                    throw new Exception($"Appointment has intersecting period with Id : {appointmentDto.Id}");
-                }
+            // Validate intersecting period.
+            if (scheduledDate.ToString("dd/MM/yyyy") == requiredDate.ToString("dd/MM/yyyy")
+                    && startTime <= requiredStartTime && requiredStartTime <= endTime)
+            {
+                throw new Exception($"Appointment has intersecting period with Id : {appointmentDto.Id}");
+            }
 
-                // Validate overlapping period.
-                if (scheduledDate.ToString("dd/MM/yyyy") == requiredDate.ToString("dd/MM/yyyy")
-                       && startTime <= requiredEndTime && requiredEndTime <= endTime)
-                {
-                    throw new Exception($"Appointment has overlapping period with Id : {appointmentDto.Id}");
-                }
+            // Validate overlapping period.
+            if (scheduledDate.ToString("dd/MM/yyyy") == requiredDate.ToString("dd/MM/yyyy")
+                    && startTime <= requiredEndTime && requiredEndTime <= endTime)
+            {
+                throw new Exception($"Appointment has overlapping period with Id : {appointmentDto.Id}");
             }
 
             return true;
@@ -63,7 +60,6 @@ namespace appointment.core.Services
         {
             appointmentDto.Id = Guid.NewGuid();
             var appointmentModel = _mapper.Map<AppointmentTable>(appointmentDto);
-            appointmentModel.Date = DateTime.Now;
             appointmentModel.LastModified = DateTime.Now;
 
             //Retrieve all appointments for agent
@@ -85,7 +81,6 @@ namespace appointment.core.Services
                 }
             }
 
-
             await _appointmentRepository.SaveAppointment(appointmentModel);
             return new Response<AppointmentDto>()
             {
@@ -99,11 +94,27 @@ namespace appointment.core.Services
         {
             List<Response<AppointmentDto>> responseList = new List<Response<AppointmentDto>>();
 
+            List<Task> taskList = new List<Task>();
+            
             foreach (var item in appointmentDtoList)
             {
-                var response = await CreateAppointment(item);
+                taskList.Add(new Task(() => CreateAppointment(item)));
+            }
 
-                responseList.Add(response);
+            foreach (var item in taskList)
+            {
+                // Start each task.
+                item.Wait(500);
+                item.Start();
+            }
+
+            Task.WaitAll(taskList.ToArray());
+
+            foreach (var task in taskList)
+            {
+                var data = task.AsyncState as Response<AppointmentDto>;
+                if (data != null)
+                    responseList.Add(data);
             }
 
             return responseList;
